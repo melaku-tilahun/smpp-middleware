@@ -3,57 +3,244 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SMS Test UI</title>
+  <title>SMS API Playground</title>
   <style>
+    :root {
+      --bg: #07111f;
+      --panel: #0f172a;
+      --panel-2: #111c31;
+      --border: #24324d;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #818cf8;
+      --success: #34d399;
+      --danger: #fb7185;
+    }
+
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
-      max-width: 480px;
-      margin: 40px auto;
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg), #0b1220);
+      color: var(--text);
+      min-height: 100vh;
       padding: 24px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    input, button {
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1, h2, h3 { margin: 0 0 10px; }
+    p { color: var(--muted); line-height: 1.6; }
+
+    label { display: block; margin: 14px 0 6px; font-weight: 600; }
+    input, textarea, button {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      font-size: 14px;
+      background: var(--panel-2);
+      color: var(--text);
     }
+
+    textarea { min-height: 110px; resize: vertical; font-family: Consolas, monospace; }
+    input:focus, textarea:focus { outline: 2px solid rgba(56, 189, 248, 0.3); border-color: var(--accent); }
+
     button {
+      margin-top: 12px;
       cursor: pointer;
-      background: #2563eb;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
       color: white;
       border: none;
-      border-radius: 6px;
+      font-weight: 700;
     }
+
+    .grid { display: grid; gap: 12px; }
+    .endpoint {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(17, 28, 49, 0.95);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .method {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-right: 8px;
+      background: rgba(52, 211, 153, 0.16);
+      color: var(--success);
+    }
+
+    .code {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #020617;
+      color: #cbd5e1;
+      font-family: Consolas, monospace;
+      overflow: auto;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    .copyable {
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .copyable:hover {
+      background: #0f172a;
+      border-color: var(--accent);
+    }
+
     .result {
       margin-top: 16px;
-      padding: 10px;
-      border-radius: 6px;
-      background: #f3f4f6;
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 120px;
       white-space: pre-wrap;
+      color: #cbd5e1;
+      font-family: Consolas, monospace;
+    }
+
+    .status-ok { color: var(--success); }
+    .status-error { color: var(--danger); }
+
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <h2>SMS Test UI</h2>
-  <label for="number">Phone Number</label>
-  <input id="number" placeholder="e.g. +251914558019" />
-  <button onclick="sendTest()">Send Test SMS</button>
-  <div id="result" class="result">Waiting for input...</div>
+  <div class="container">
+    <div class="card">
+      <div class="hero">
+        <div>
+          <div class="badge">SMPP / HTTP Gateway</div>
+          <h1>SMS API Playground</h1>
+          <p>Send test messages through the SMPP service using a clean, modern API interface.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label for="number">Destination number</label>
+          <input id="number" placeholder="e.g. +251914558019" />
+        </div>
+
+        <div>
+          <label for="message">Message</label>
+          <textarea id="message">Hello from SMS API Playground</textarea>
+        </div>
+
+        <button onclick="sendTest()">Send Test SMS</button>
+        <div id="result" class="result">Waiting for input...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>API Reference</h2>
+      <p>Use these endpoints to interact with the service.</p>
+
+      <div class="endpoint">
+        <div><span class="method">GET</span>/health</div>
+        <div class="code copyable" onclick="copyText(this)">curl http://localhost:3000/health</div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method">POST</span>/send-sms</div>
+        <div class="code copyable" onclick="copyText(this)">curl -X POST http://localhost:3000/send-sms -H "Content-Type: application/json" -d '{"destinationAddr":"+251914558019","shortMessage":"Hello"}'</div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method">GET</span>/send-sms?destinationAddr=...&shortMessage=...</div>
+        <div class="code copyable" onclick="copyText(this)">http://localhost:3000/send-sms?destinationAddr=+251914558019&shortMessage=Hello</div>
+      </div>
+
+      <div class="endpoint">
+        <h3>Request body</h3>
+        <div class="code">{
+  "destinationAddr": "+251914558019",
+  "shortMessage": "Hello",
+  "sourceAddr": "6301",
+  "host": "10.204.181.70",
+  "port": 5019,
+  "systemId": "6301",
+  "password": "your-password"
+}</div>
+      </div>
+    </div>
+  </div>
 
   <script>
+    async function copyText(element) {
+      const text = element.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        const oldText = element.textContent;
+        element.textContent = 'Copied!';
+        setTimeout(() => {
+          element.textContent = oldText;
+        }, 1200);
+      } catch (error) {
+        element.textContent = 'Copy failed';
+      }
+    }
+
     async function sendTest() {
       const number = document.getElementById('number').value.trim();
+      const message = document.getElementById('message').value.trim();
       const resultBox = document.getElementById('result');
 
       if (!number) {
         resultBox.textContent = 'Please enter a phone number.';
+        resultBox.className = 'result status-error';
         return;
       }
 
       resultBox.textContent = 'Sending...';
+      resultBox.className = 'result';
 
       try {
         const response = await fetch('/send-sms', {
@@ -61,14 +248,16 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             destinationAddr: number,
-            shortMessage: 'Hello from SMS test UI'
+            shortMessage: message || 'Hello from SMS API Playground'
           })
         });
 
         const data = await response.json();
         resultBox.textContent = JSON.stringify(data, null, 2);
+        resultBox.className = data.success ? 'result status-ok' : 'result status-error';
       } catch (error) {
         resultBox.textContent = 'Request failed: ' + error.message;
+        resultBox.className = 'result status-error';
       }
     }
   </script>
